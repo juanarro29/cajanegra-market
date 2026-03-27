@@ -3,7 +3,7 @@ export default async function handler(req, res) {
   const { symbols } = req.query;
   if (!symbols) return res.status(400).json({ error: 'symbols requeridos' });
 
-  const API_KEY = 'd72vqq1r01qn7f074hh0';
+  const API_KEY = 'd7393g9r01qjjol26c20';
   const symList = symbols.split(',').map(s => s.trim());
 
   try {
