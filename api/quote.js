@@ -3,26 +3,26 @@ export default async function handler(req, res) {
   const { symbols } = req.query;
   if (!symbols) return res.status(400).json({ error: 'symbols requeridos' });
 
-  const API_KEY = 'HYPOBEIBZA46U7RD';
+  const API_KEY = 'd72vqq1r01qn7f074hh0';
   const symList = symbols.split(',').map(s => s.trim());
 
   try {
     const results = await Promise.all(symList.map(async (sym) => {
       try {
-        const url = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${sym}&apikey=${API_KEY}`;
+        const url = `https://finnhub.io/api/v1/quote?symbol=${sym}&token=${API_KEY}`;
         const r = await fetch(url);
-        const d = await r.json();
-        const q = d['Global Quote'];
-        if (!q || !q['05. price']) return { sym, name: sym, price: null, chg: null, open: null, high: null, low: null, vol: 0 };
+        const q = await r.json();
+        if (!q || q.c === 0) return { sym, name: sym, price: null, chg: null, open: null, high: null, low: null, vol: 0 };
+        const chgPct = q.pc ? ((q.c - q.pc) / q.pc) * 100 : null;
         return {
           sym,
           name: sym,
-          price: parseFloat(q['05. price']),
-          chg: parseFloat(q['10. change percent']),
-          open: parseFloat(q['02. open']),
-          high: parseFloat(q['03. high']),
-          low: parseFloat(q['04. low']),
-          vol: parseInt(q['06. volume']) || 0
+          price: q.c,
+          chg: chgPct,
+          open: q.o,
+          high: q.h,
+          low: q.l,
+          vol: 0
         };
       } catch(e) {
         return { sym, name: sym, price: null, chg: null, open: null, high: null, low: null, vol: 0 };
@@ -30,16 +30,18 @@ export default async function handler(req, res) {
     }));
 
     res.status(200).json({
-      quoteResponse: { result: results.map(r => ({
-        symbol: r.sym,
-        shortName: r.name,
-        regularMarketPrice: r.price,
-        regularMarketChangePercent: r.chg,
-        regularMarketOpen: r.open,
-        regularMarketDayHigh: r.high,
-        regularMarketDayLow: r.low,
-        regularMarketVolume: r.vol
-      })) }
+      quoteResponse: {
+        result: results.map(r => ({
+          symbol: r.sym,
+          shortName: r.name,
+          regularMarketPrice: r.price,
+          regularMarketChangePercent: r.chg,
+          regularMarketOpen: r.open,
+          regularMarketDayHigh: r.high,
+          regularMarketDayLow: r.low,
+          regularMarketVolume: r.vol
+        }))
+      }
     });
   } catch(e) {
     res.status(500).json({ error: e.message });
