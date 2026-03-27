@@ -1,13 +1,14 @@
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   const { symbols } = req.query;
-  if (!symbols) return res.status(400).json({ error: 'symbols requerido' });
+  if (!symbols) return res.status(400).json({ error: 'symbols requeridos' });
   try {
-    const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols}&fields=regularMarketPrice,regularMarketChangePercent,regularMarketOpen,regularMarketDayHigh,regularMarketDayLow,regularMarketVolume,shortName`;
-    const r = await fetch(url, {
+    const URL = `https://query2.finance.yahoo.com/v7/finance/quote?symbols=${symbols}&fields=regularMarketPrice,regularMarketChangePercent,regularMarketOpen,regularMarketDayHigh,regularMarketDayLow,regularMarketVolume,shortName`;
+    const r = await fetch(URL, {
       headers: {
-        'User-Agent': 'Mozilla/5.0',
-        'Accept': 'application/json'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Accept': 'application/json',
+        'Referer': 'https://finance.yahoo.com'
       }
     });
     const data = await r.json();
